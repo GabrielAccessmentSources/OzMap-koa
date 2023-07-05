@@ -6,7 +6,9 @@ export const getUsers = async(ctx) => {
 
         return ctx.body = users;
     }catch (error) {
-        return console.log(error);
+        console.error(error);
+        ctx.status = 500;
+        ctx.body = { message: "OzMap - Error retrieving users" };
     }
 };
 
@@ -23,14 +25,16 @@ export const createUser = async(ctx) => {
 
         ctx.body = user;
     }catch (error) {
-        return console.log(error);
+        console.error(error);
+        ctx.status = 500;
+        ctx.body = { message: "OzMap - Error creating user" };
     }
 };
 export const updateUser = async (ctx) => {
     const { userId } = ctx.params;
 
     try {
-        const user = await User.findByPk(userId);
+        const user = await User.findOne({ where: { id: userId } });
 
         if (!user) {
             ctx.status = 404;

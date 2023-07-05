@@ -1,9 +1,15 @@
 import Router from "koa-router";
 
-import { getUsers } from "../controllers/user-controllers.js";
+import {
+    createUser,
+    getUsers,
+    updateUser
+} from "../controllers/user-controllers.js";
 
 const router = new Router();
 
 router.get("/", getUsers);
+router.post("/", createUser);
+router.patch("/:userId", updateUser);
 
 export const userRoutes = router;

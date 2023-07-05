@@ -1,10 +1,9 @@
 import Koa from "koa";
-import Router from "koa-router"
+import Router from "koa-router";
 
 // todas as configuraçoes devem ser passadas via environment variables
 
 const app = new Koa();
-// const koa = new Koa();
 
 const PORT = process.env.PORT || 5000;
 const router = new Router();
@@ -29,7 +28,7 @@ const router = new Router();
 
 
 app.listen(PORT, () => {
-    console.log(`OzMap Listening on Port ${PORT}`)
-})
+    console.log(`OzMap Listening on Port ${PORT}`);
+});
 
 export default app;

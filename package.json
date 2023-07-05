@@ -30,6 +30,7 @@
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
     "chai-json-schema": "^1.5.1",
+    "eslint": "^8.44.0",
     "mocha": "^8.1.3"
   }
 }

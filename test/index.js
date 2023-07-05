@@ -1,147 +1,119 @@
-//sample test
-//Para rodar os testes, use: npm test
-//PS: Os testes não estão completos e alguns podem comnter erros.
-
-// veja mais infos em:
-//https://mochajs.org/
-//https://www.chaijs.com/
-//https://www.chaijs.com/plugins/chai-json-schema/
-//https://developer.mozilla.org/pt-PT/docs/Web/HTTP/Status (http codes)
-
-import { assert } from "chai";
-import * as chai from "chai";
+import {
+    describe,
+    it,
+    before,
+    after
+} from "mocha";
+import chai from "chai";
 import chaiHttp from "chai-http";
-import { chaiJson } from "chai-json-schema";
+import chaiJson from "chai-json-schema";
+import request from "supertest";
 
 import app from "../index.js";
-
-// const app =  require('../src/index.js');
-
-// const assert = require('assert');
-// const chai = require('chai')
-// const chaiHttp = require('chai-http');
-// const chaiJson = require('chai-json-schema');
 
 chai.use(chaiHttp);
 chai.use(chaiJson);
 
 const expect = chai.expect;
 
-//Define o minimo de campos que o usuário deve ter. Geralmente deve ser colocado em um arquivo separado
-const userSchema = {
-    title: "Schema do Usuario, define como é o usuario, linha 24 do teste",
-    type: "object",
-    required: ["nome", "email", "idade"],
-    properties: {
-        nome: {
-            type: "string"
-        },
-        email: {
-            type: "string"
-        },
-        idade: {
-            type: "number",
-            minimum: 18
-        }
-    }
-};
-
-//Inicio dos testes
-
-//este teste é simplesmente pra enteder a usar o mocha/chai
-describe("Um simples conjunto de testes", function () {
-    it("deveria retornar -1 quando o valor não esta presente", function () {
-        assert.equal([1, 2, 3].indexOf(4), -1);
-    });
+let server;
+before((done) => {
+    server = app.listen(0, done);
 });
 
-//testes da aplicação
-describe("Testes da aplicaçao",  () => {
-    it("o servidor esta online", function (done) {
-        chai.request(app)
-        .get("/")
-        .end(function (err, res) {
-        expect(err).to.be.null;
-        expect(res).to.have.status(200);
-        done();
-        });
+describe("check if the server is up and running", () => {
+    after((done) => {
+        server.close(done);
     });
 
-    it("deveria ser uma lista vazia de usuarios", function (done) {
-        chai.request(app)
-        .get("/users")
-        .end(function (err, res) {
-        expect(err).to.be.null;
-        expect(res).to.have.status(200);
-        expect(res.body.rows).to.eql([]);
-        done();
-        });
+    it("should return 200", (done) => {
+        request(server)
+            .get("/users").expect(200, done);
+    });
+});
+describe("check userController behaviour", () => {
+    let createdUserId;
+
+    it("should return an array of users", (done) => {
+        chai
+            .request(server)
+            .get("/users")
+            .end((err, res) => {
+                expect(res).to.have.status(200);
+                expect(res.body).to.be.an("array");
+                done();
+            });
     });
 
-    it("deveria criar o usuario raupp", function (done) {
-        chai.request(app)
-        .post("/user")
-        .send({ nome: "raupp", email: "jose.raupp@devoz.com.br", idade: 35 })
-        .end(function (err, res) {
-            expect(err).to.be.null;
-            expect(res).to.have.status(201);
-            done();
-        });
-    });
-    //...adicionar pelo menos mais 5 usuarios. se adicionar usuario menor de idade, deve dar erro. Ps: não criar o usuario naoExiste
-
-    it("o usuario naoExiste não existe no sistema", function (done) {
-        chai.request(app)
-        .get("/user/naoExiste")
-        .end(function (err, res) {
-            expect(err.response.body.error).to.be.equal("User not found"); //possivelmente forma errada de verificar a mensagem de erro
-            expect(res).to.have.status(404);
-            expect(res.body).to.be.jsonSchema(userSchema);
-            done();
-        });
+    it("should create a user", (done) => {
+        chai.request(server)
+            .post("/users")
+            .send({ name: "estean", email: "piti@example", age: 40 })
+            .end((err, res) => {
+                console.log(res);
+                expect(err).to.be.null;
+                expect(res).to.have.status(200);
+                createdUserId = res.body.id;
+                done();
+            });
     });
 
-    it("o usuario raupp existe e é valido", function (done) {
-        chai.request(app)
-        .get("/user/raupp")
-        .end(function (err, res) {
-            expect(err).to.be.null;
-            expect(res).to.have.status(200);
-            expect(res.body).to.be.jsonSchema(userSchema);
-            done();
-        });
+    it("should return an error message creating user", (done) => {
+        chai.request(server)
+            .post("/users")
+            .send({})
+            .end((err, res) => {
+                expect(res.body)
+                    .to.be.an("object")
+                    .that.has.property("message", "OzMap - You must provide the name.");
+                done();
+            });
     });
 
-    it("deveria excluir o usuario raupp", function (done) {
-        chai.request(app)
-        .delete("/user/raupp")
-        .end(function (err, res) {
-            expect(err).to.be.null;
-            expect(res).to.have.status(200);
-            expect(res.body).to.be.jsonSchema(userSchema);
-            done();
-        });
+    it("should update a user", (done) => {
+        chai.request(server)
+            .patch(`/users/${createdUserId}`)
+            .send({ name: "Antony", email: "antony@example.com", age: 22 })
+            .end((err, res) => {
+                expect(err).to.be.null;
+                expect(res).to.have.status(200);
+                done();
+            });
     });
 
-    it("o usuario raupp não deve existir mais no sistema", function (done) {
-        chai.request(app)
-        .get("/user/raupp")
-        .end(function (err, res) {
-            expect(err).to.be.null;
-            expect(res).to.have.status(200);
-            expect(res.body).to.be.jsonSchema(userSchema);
-            done();
-        });
+    it("should fail because there is no userId related", (done) => {
+        const userId = null;
+        chai.request(server)
+            .patch(`/users/${userId}`)
+            .send({})
+            .end((err, res) => {
+                expect(res.body)
+                    .to.be.an("object")
+                    .that.has.property("message", "OZMap - User not found");
+                done();
+            });
     });
 
-    it("deveria ser uma lista com pelomenos 5 usuarios", function (done) {
-        chai.request(app)
-        .get("/users")
-        .end(function (err, res) {
-        expect(err).to.be.null;
-        expect(res).to.have.status(200);
-        expect(res.body.total).to.be.at.least(5);
-        done();
-        });
+    it("should fail because there is no body", (done) => {
+        chai.request(server)
+            .patch(`/users/${createdUserId}`)
+            .send({})
+            .end((err, res) => {
+                expect(res.body)
+                    .to.be.an("object")
+                    .that.has.property("message", "OzMap - You must provide the name");
+                done();
+            });
+    });
+
+    it("should delete an user", (done) => {
+        chai.request(server)
+            .delete(`/users/${createdUserId}`)
+            .send({})
+            .end((err, res) => {
+                expect(err).to.be.null;
+                expect(res).to.have.status(200);
+                done();
+            });
     });
 });

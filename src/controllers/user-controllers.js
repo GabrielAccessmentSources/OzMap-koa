@@ -64,3 +64,24 @@ export const updateUser = async (ctx) => {
         ctx.body = { message: "OzMap - Error updating user" };
     }
 };
+
+export const deleteUser = async(ctx) => {
+    const { userId } = ctx.params;
+
+    try{
+        const user = await User.findByPk(userId);
+
+        if (!user) {
+            ctx.status = 404;
+            ctx.body = { message: "OzMap - User not found" };
+            return;
+        }
+
+        await user.destroy();
+        ctx.body = { message: "OzMap - User deleted successfully" };
+    } catch (error) {
+        console.error(error);
+        ctx.status = 500;
+        ctx.body = { message: "OzMap - Error updating user" };
+    }
+};

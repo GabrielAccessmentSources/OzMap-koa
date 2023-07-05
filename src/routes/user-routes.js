@@ -9,6 +9,21 @@ import {
 
 const router = new Router();
 
+/**
+ * @swagger
+ * /users:
+ *   get:
+ *     summary: Get all users
+ *     responses:
+ *       200:
+ *         description: Successful operation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ */
 router.get("/", getUsers);
 router.post("/", createUser);
 router.patch("/:userId", updateUser);

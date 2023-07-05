@@ -1,12 +1,15 @@
 import Koa from "koa";
+
+import { userRoutes } from "./src/routes/user-routes.js";
 import Router from "koa-router";
 
-// todas as configuraçoes devem ser passadas via environment variables
-
 const app = new Koa();
+const router = new Router();
 
 const PORT = process.env.PORT || 5000;
-const router = new Router();
+
+router.use("/users", userRoutes.routes());
+app.use(router.routes());
 
 //rota simples pra testar se o servidor está online
 // router.get('/', async (ctx) => {

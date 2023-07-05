@@ -15,13 +15,16 @@ export const getUsers = async(ctx) => {
 export const createUser = async(ctx) => {
     const { name, email, age } = ctx.request.body;
 
+    if(name === undefined){
+        return ctx.body = { message: "OzMap - You must provide the name." };
+    }
+
     try {
         const user = await User.create({
             name: name,
             email: email,
             age: age
         });
-
 
         ctx.body = user;
     }catch (error) {
@@ -43,6 +46,10 @@ export const updateUser = async (ctx) => {
         }
 
         const { name, email, age } = ctx.request.body;
+
+        if(name === undefined){
+            return ctx.body = { message: "OzMap - You must provide the name" };
+        }
 
         user.name = name || user.name;
         user.email = email || user.email;

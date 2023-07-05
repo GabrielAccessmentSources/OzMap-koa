@@ -3,6 +3,7 @@ import Router from "koa-router";
 import bodyParser from "koa-bodyparser";
 
 import { userRoutes } from "./src/routes/user-routes.js";
+import swaggerRouter from "./swagger.js";
 import { sequelize } from "./src/util/database.js";
 import { mockData } from "./src/helpers/mockData.js";
 
@@ -14,6 +15,7 @@ const PORT = process.env.PORT || 5000;
 app.use(bodyParser());
 
 router.use("/users", userRoutes.routes());
+app.use(swaggerRouter.routes());
 app.use(router.routes());
 
 sequelize.sync().then(result => {

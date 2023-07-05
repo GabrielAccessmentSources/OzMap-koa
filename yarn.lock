@@ -394,7 +394,7 @@ chai-http@^4.3.0:
 
 chai-json-schema@^1.5.1:
   version "1.5.1"
-  resolved "https://registry.npmjs.org/chai-json-schema/-/chai-json-schema-1.5.1.tgz"
+  resolved "https://registry.yarnpkg.com/chai-json-schema/-/chai-json-schema-1.5.1.tgz#d9ae4c8f8c6e24ff4d402ceddfaa865d1ca107f4"
   integrity sha512-TR/xPDxRhqwFFCWg1HgL8nNWbpNfUwaib6pBN++QKpnd0t+o3+MBvAn5CM1mpdUMaM76oJAtUjGKdjGad01lIA==
   dependencies:
     jsonpointer.js "0.4.0"

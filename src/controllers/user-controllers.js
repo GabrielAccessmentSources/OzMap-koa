@@ -27,8 +27,29 @@ export const createUser = async(ctx) => {
     }
 };
 export const updateUser = async (ctx) => {
+    const { userId } = ctx.params;
 
-    console.log(ctx.request);
-    // const { name, email, age, } = ctx.request.body;
+    try {
+        const user = await User.findByPk(userId);
 
+        if (!user) {
+            ctx.status = 404;
+            ctx.body = { message: "OZMap - User not found" };
+            return;
+        }
+
+        const { name, email, age } = ctx.request.body;
+
+        user.name = name || user.name;
+        user.email = email || user.email;
+        user.age = age || user.age;
+
+        await user.save();
+
+        ctx.body = user;
+    } catch (error) {
+        console.error(error);
+        ctx.status = 500;
+        ctx.body = { message: "OzMap - Error updating user" };
+    }
 };
